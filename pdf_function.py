@@ -18,6 +18,7 @@ from bson import ObjectId
 import requests
 from pymongo.server_api import ServerApi
 import dns.resolver
+from flask_cors import CORS
 
 # Configure DNS resolver to use Google's DNS
 dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
@@ -42,6 +43,35 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 CORS(app)
+
+# CORS Configuration - Updated for Netlify frontend
+CORS(app, resources={
+    r"/api/*": {
+        "origins": [
+            "https://pdf-reduction.netlify.app",
+            "http://localhost:3000",  # For local development
+            "http://localhost:5173",  # For Vite local development
+        ],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": True,
+        "max_age": 3600
+    },
+    r"/upload-pdf": {
+        "origins": [
+            "https://pdf-reduction.netlify.app",
+            "http://localhost:3000",
+            "http://localhost:5173",
+        ],
+        "methods": ["POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": True
+    },
+    r"/health": {
+        "origins": "*",  # Public endpoint
+        "methods": ["GET", "OPTIONS"]
+    }
+})
 
 # Configuration
 AWS_ACCESS_KEY = os.getenv('AWS_ACCESS_KEY_ID')
