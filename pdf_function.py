@@ -16,6 +16,15 @@ from pymongo import MongoClient, ASCENDING, DESCENDING
 from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
 from bson import ObjectId
 import requests
+from pymongo.server_api import ServerApi
+import dns.resolver
+
+# Configure DNS resolver to use Google's DNS
+dns.resolver.default_resolver = dns.resolver.Resolver(configure=False)
+dns.resolver.default_resolver.nameservers = ['8.8.8.8', '8.8.4.4']
+
+
+
 
 # Run Command
 # py -3.12 --version
@@ -41,7 +50,8 @@ AWS_REGION = os.getenv('AWS_REGION', 'eu-north-1')
 S3_BUCKET = os.getenv('S3_BUCKET_NAME')
 
 # MongoDB Configuration
-MONGO_URI = "mongodb://127.0.0.1:27017"  # localhost
+# MONGO_URI = "mongodb://127.0.0.1:27017"  # localhost
+MONGO_URI = "mongodb+srv://rohankrpandey20_db_user:rohan123@cluster0.nkv1lfk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 MONGO_DB_NAME = os.getenv('MONGO_DB_NAME', 'pdf_redaction_db')
 
 # Debug AWS configuration
@@ -61,6 +71,18 @@ mongo_client = None
 mongo_db = None
 mongo_available = False
 
+# Now create MongoDB connection
+try:
+    client = MongoClient(
+        MONGO_URI,
+        server_api=ServerApi('1'),
+        serverSelectionTimeoutMS=10000
+    )
+    client.admin.command('ping')
+    print("✓ Successfully connected to MongoDB!")
+except Exception as e:
+    print(f"✗ Connection failed: {e}")
+    
 def initialize_mongodb():
     """Initialize MongoDB connection"""
     global mongo_client, mongo_db, mongo_available
