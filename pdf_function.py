@@ -510,6 +510,10 @@ pdf_handler = PDFHandler()
 
 # Store search results temporarily
 search_cache = {}
+@app.route("/")
+def home():
+    return "Hello, Flask is running on EC2!"
+
 
 @app.route('/upload-pdf', methods=['POST'])
 def upload_pdf():
